@@ -2,15 +2,21 @@
 <html> 
     <head> 
         <meta charset="UTF-8" />
-        <title>Wordle</title>
+        <title>Inline Wordle</title>
         <script src="./src/preact.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="src/style.css">
     </head> 
     <body id="body">
         <textarea id="input" style="width:100%; height:10em"></textarea>
+        <div id="colours_target"></div>
         <button id="button" style="disply:block">generate</button>
         <div id="render_target"></div>
         <script type="module">
             import {main} from './src/main.js';
+            import {colours, extractColourWords} from './src/colours.js';
+
+            var coloursTarget = document.getElementById('colours_target');
+            colours(coloursTarget);
 
             var renderTarget = document.getElementById('render_target');
             var previous = null;
@@ -18,7 +24,8 @@
             var textBox = document.getElementById('input');
             var button = document.getElementById('button');
             button.onclick = () => { 
-                previous = main(renderTarget, previous, textBox.value);
+                let wordColours = extractColourWords( coloursTarget );
+                previous = main(renderTarget, previous, wordColours, textBox.value);
             };
             button.onclick();
         </script>

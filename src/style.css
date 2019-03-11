@@ -1,0 +1,10 @@
+.colourSpan {
+    display: flex;
+}
+.colourBlock {
+   flex-grow: 0.1; 
+}
+.colourText {
+   flex-grow: 1; 
+   height: 1.4em;
+}

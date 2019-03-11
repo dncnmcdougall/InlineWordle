@@ -39,21 +39,26 @@ const addWord = function(word, dictionary, count) {
     count.total++;
 }
 
-const renderWord = function(word, words, total) {
-    let count = words[word.toLowerCase()];
+const renderWord = function(word, colourDictionary, wordCounts, total) {
+    const normalWord = word.toLowerCase();
+    let count = wordCounts[normalWord];
     let size = 1;
     if ( count ) {
         size = 1+ (count.count/total)*sizeScale;
     } else if ( word === "\n" ) {
         return h('br',{},[]);
     }
-    return h('span', {style: 'font-size:'+ size+'em'}, [word] );
+    let style = 'font-size:'+ size+'em;';
+    if ( normalWord in colourDictionary ) {
+        style += 'background:'+colourDictionary[normalWord];
+    }
+    return h('span', {'style': style}, [word] );
 };
 
 
-const main = function( renderTarget, previous, text) {
+const main = function( renderTarget, previous, wordColours, text) {
     let result = [];
-    let words = {};
+    let wordCounts = {};
     let splitObj = lowestSplit(text);
     let word = "";
     let count = {
@@ -64,7 +69,7 @@ const main = function( renderTarget, previous, text) {
         word =  splitObj['first'];
         if ( word.length > 0 ){
             result.push( word );
-            addWord(word, words, count);
+            addWord(word, wordCounts, count);
         }
         result.push( splitObj['div']);
         splitObj = lowestSplit(splitObj['second']);
@@ -72,17 +77,26 @@ const main = function( renderTarget, previous, text) {
     word =  splitObj['first'];
     if ( word.length > 0 ){
         result.push( word );
-        addWord(word, words, count);
+        addWord(word, wordCounts, count);
     }
     result.push( splitObj['div']);
     result = result.filter( (value) => value && value.length>0);
 
+    let colourDictionary = {};
+    wordColours.forEach( function(colourObj) {
+        let words = colourObj.words.split(' ');
+        words.forEach( function(word) {
+            if ( ! (word in colourDictionary) ) {
+                colourDictionary[word] = colourObj.colour;
+            }
+        });
+    });
 
     var mapRender = function(currentWord) {
-        return renderWord(currentWord, words, count.max);
+        return renderWord(currentWord, colourDictionary, wordCounts, count.max);
     };
 
-    return render( h('p', {}, result.map(mapRender)), renderTarget, previous);
+    return render( h('div', {}, result.map(mapRender)), renderTarget, previous);
 };
 
 export { main };
